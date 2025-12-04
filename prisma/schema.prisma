@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ----------------------------------------
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+// Chứa thông tin cơ bản của người dùng
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  hash      String
+  firstName String?
+  lastName  String?
+  status    UserStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Mối quan hệ: Một User có thể có nhiều Roles
+  roles UserRole[]
+  @@map("users")
+}
+
+// Chứa định nghĩa các vai trò (Admin, Editor, User)
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Mối quan hệ: Một Role có thể được gán cho nhiều User
+  users       UserRole[]
+  // Mối quan hệ: Một Role có thể có nhiều Permissions
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+// Chứa định nghĩa các quyền cụ thể (create_post, delete_user, read_profile)
+model Permission {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Mối quan hệ: Một Permission có thể được gán cho nhiều Role
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+// BẢNG NỐI TRUNG GIAN: Gán Role cho User (MANY-TO-MANY)
+model UserRole {
+  userId Int
+  roleId Int
+
+  // Định nghĩa mối quan hệ
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  // Khóa chính: Không cho phép một User có hai lần cùng một Role
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+//BẢNG NỐI TRUNG GIAN: Gán Permission cho Role (MANY-TO-MANY)
+model RolePermission {
+  roleId       Int
+  permissionId Int
+
+  // Định nghĩa mối quan hệ
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  // Khóa chính: Không cho phép một Role có hai lần cùng một Permission
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
