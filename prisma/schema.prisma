@@ -25,6 +25,7 @@ model User {
   id        Int        @id @default(autoincrement())
   email     String     @unique
   hash      String
+  hashedRt  String?
   firstName String?
   lastName  String?
   status    UserStatus @default(PENDING)
