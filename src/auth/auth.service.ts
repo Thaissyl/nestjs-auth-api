@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthDto } from "./dto";
 import * as argon from 'argon2';
@@ -142,5 +142,31 @@ export class AuthService {
             access_token: at,
             refresh_token: rt,
         };
+    }
+
+    /**
+     * Xác minh Refresh Token và trả về userId
+     * @param refreshToken Refresh Token nhận từ Cookie
+     * @returns userId (sub) nếu token hợp lệ
+     */
+    async verifyRtAndGetUserId(refreshToken: string): Promise<number> {
+        
+        // 1. Lấy secret key từ ConfigService
+        const rtSecret = this.config.get('JWT_REFRESH_SECRET'); // Sử dụng JWT_REFRESH_SECRET để nhất quán
+        
+        try {
+            // 2. Sử dụng verifyAsync để xác minh chữ ký và thời hạn
+            const payload = await this.jwt.verifyAsync(refreshToken, {
+                secret: rtSecret,
+            });
+
+            // 3. Trả về userId (payload.sub)
+            // Lưu ý: sub là string theo chuẩn JWT, cần chuyển về number
+            return Number(payload.sub); 
+
+        } catch (error) {
+            // 4. Nếu xác minh thất bại (token hết hạn, chữ ký sai,...)
+            throw new UnauthorizedException('Invalid or expired refresh token');
+        }
     }
 }

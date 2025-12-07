@@ -34,6 +34,7 @@ export class JwtStrategy extends PassportStrategy(
                 },
             });
         delete user.hash;
+        delete user.hashedRt;
         return user;
     }
 }
