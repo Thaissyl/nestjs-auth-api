@@ -13,13 +13,6 @@ datasource db {
 }
 
 // ----------------------------------------
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  PENDING
-}
-
 // Chứa thông tin cơ bản của người dùng
 model User {
   id        Int        @id @default(autoincrement())
@@ -28,7 +21,6 @@ model User {
   hashedRt  String?
   firstName String?
   lastName  String?
-  status    UserStatus @default(PENDING)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 

@@ -11,6 +11,4 @@ export class UserController {
         console.log(req.user);
         return req.user;
     }
-
-
 }

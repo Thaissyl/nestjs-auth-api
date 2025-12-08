@@ -24,12 +24,13 @@ export class AuthService {
                 data: {
                     email: dto.email,
                     hash,
+                    firstName: dto.firstName || '',
+                    lastName: dto.lastName || '',
                 },
                 select: {
                     id: true,
                     email: true,
-                    createdAt: true,
-                    status: true,
+                    createdAt: true
                 },
             });
             const tokens = await this.getTokens(user.id, user.email);

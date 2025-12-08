@@ -21,7 +21,9 @@ export class AuthController {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
-        return { access_token: tokens.access_token };
+        return { access_token: tokens.access_token,
+                 refresh_token: tokens.refresh_token,
+         };
     }
 
     @HttpCode(HttpStatus.OK)
